@@ -19,6 +19,9 @@ export interface Style {
 }
 
 export function parse(text: string) {
+  /** 
+   css 파일에서 소스코드를 가지고 오면 (.)을 포함한 클래스 이름을 가져오는 정규식이다
+  */
   const selector =
     /([.#])(-?[_a-zA-Z]+[\\!+_a-zA-Z0-9-]*)(?=[#.,()\s\[\]\^:*"'>=_a-zA-Z0-9-]*{[^}]*})/g;
   const styles: Style[] = [];

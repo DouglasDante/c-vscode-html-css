@@ -1,0 +1,6 @@
+{
+  "-comment": "워크벤치의 환경 설정",
+  "css.styleSheets": [
+    "asset/**/*.css"
+  ],
+}

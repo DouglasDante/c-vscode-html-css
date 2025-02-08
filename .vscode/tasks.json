@@ -8,7 +8,10 @@
         "owner": "typescript",
         "source": "ts",
         "applyTo": "closedDocuments",
-        "fileLocation": ["relative", "${cwd}"],
+        "fileLocation": [
+          "relative",
+          "${cwd}"
+        ],
         "pattern": {
           "regexp": "^\\(!\\) Plugin typescript: @rollup\\/plugin-typescript TS(?<errorCode>\\d+): (?<message>.+)\\r?\\n(?<file>.*?):\\s*\\((?<line>\\d+):(?<column>\\d+)\\)$",
           "file": 3,
@@ -36,6 +39,50 @@
         "kind": "build",
         "isDefault": true
       }
+    },
+    {
+      "label": "ts-node: 활성 파일 실행 by custom",
+      "type": "shell",
+      "command": "ts-node",
+      "args": [
+        "${file}"
+      ],
+      "problemMatcher": [
+        "$tsc"
+      ],
+      "detail": "커스텀 작업",
+      "group": "build"
+    },
+    {
+      "label": "tsc: 빌드 및 실행 - tsconfig.json by custom",
+      "type": "shell",
+      "command": "tsc",
+      "args": [
+        "-p",
+        "./tsconfig.json",
+        "&",
+        "node",
+        "./target/main.js"
+      ],
+      "problemMatcher": [
+        "$tsc"
+      ],
+      "detail": "커스텀 작업",
+      "group": "build"
+    },
+    {
+      "label": "tsc: 빌드 - tsconfig.json by custom",
+      "type": "shell",
+      "command": "tsc",
+      "args": [
+        "-p",
+        "./tsconfig.json",
+      ],
+      "problemMatcher": [
+        "$tsc"
+      ],
+      "detail": "커스텀 작업",
+      "group": "build"
     }
   ]
 }

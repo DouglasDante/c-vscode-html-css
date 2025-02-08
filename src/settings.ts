@@ -25,8 +25,8 @@ export function getStyleSheets(scope: TextDocument): string[] {
           variable === "fileBasename"
             ? path.base
             : variable === "fileExtname"
-            ? path.ext
-            : path.name
+              ? path.ext
+              : path.name
       )
     );
 }

@@ -10,13 +10,20 @@ import {
   TextDocument,
   window,
   workspace,
+  CompletionItem,
+  SnippetString
 } from "vscode";
 import {
   AutoValidation,
   getAutoValidation,
   getEnabledLanguages,
 } from "./settings";
-import { Provider, clear, invalidate } from "./provider";
+import {
+  Provider,
+  clear,
+  invalidate
+} from "./provider";
+import { title } from "process";
 
 const enabledLanguages = getEnabledLanguages();
 const validations = languages.createDiagnosticCollection();
@@ -36,7 +43,9 @@ async function validate(
   }
 }
 
-export function activate(context: ExtensionContext) {
+export function activate(
+  context: ExtensionContext
+) {
   context.subscriptions.push(
     languages.registerCompletionItemProvider(enabledLanguages, provider, " "),
     languages.registerDefinitionProvider(enabledLanguages, provider),
@@ -67,10 +76,14 @@ export function activate(context: ExtensionContext) {
     commands.registerCommand("vscode-html-css.clear", () => clear())
   );
 
+  const set_foo_completion = new CompletionItem("SET FOO");
+  set_foo_completion.insertText = new SnippetString("SET FOO ${1|Foo, Bar, Bas};");
+  set_foo_completion.command = { command: "editor.action.triggerSuggest", title: "Re-trigger completions..." };
+
   return commands.executeCommand<void>(
     "vscode-html-css.validate",
     AutoValidation.ALWAYS
   );
 }
 
-export function deactivate() {}
+export function deactivate() { }
