@@ -69,13 +69,18 @@ export class Provider implements CompletionItemProvider, DefinitionProvider {
     return "";
   }
 
+  /** 
+   
+  */
   private async getRemote(name: string) {
     let styles = cache.get(name);
     if (!styles) {
       const content = await this.fetch(name);
+      // console.log("펫치 반환 컨텐츠 검사: ", content);
       styles = parse(content);
       cache.set(name, styles);
     }
+    // console.log("스타일 검사: ", styles);
     return styles;
   }
 
@@ -91,19 +96,35 @@ export class Provider implements CompletionItemProvider, DefinitionProvider {
     return styles;
   }
 
+  /** 
+   워크스페이스 경로와 css.styleSheet 요소를 묶어서 반환하는 함수다.
+  */
   private getRelativePattern(folder: WorkspaceFolder, glob: string) {
     return new RelativePattern(folder, glob);
   }
 
   private async getStyles(document: TextDocument) {
     const styles = new Map<string, Style[]>();
+    /** 
+     워크스페이스 폴더의 uri를 가져와 워크스페이스 폴더를 반환한다.
+    */
     const folder = workspace.getWorkspaceFolder(document.uri);
+    /** 
+     .vscode/settings.json의 css.styleSheet 요소를 가져온다.
+    */
     const globs = getStyleSheets(document);
 
     for (const glob of globs) {
       if (this.isRemote.test(glob)) {
+        /** 
+         하이퍼텍스트 링크로 연결되어 있을 경우 연결하는 함수다.
+        */
         styles.set(glob, await this.getRemote(glob));
       } else if (folder) {
+        // let value_cst = this.getRelativePattern(folder, glob);
+
+        // console.log("리턴 값 출력 테스트: ", value_cst);
+
         const files = await workspace.findFiles(
           this.getRelativePattern(folder, glob)
         );
@@ -163,20 +184,32 @@ export class Provider implements CompletionItemProvider, DefinitionProvider {
 
   /** 
    해당 코드가 매치 적합시 완성 목록을 가져오는 코드다. 
+   
   */
   private async getCompletionItems(
     document: TextDocument,
     position: Position,
     type: StyleType
   ) {
+    // console.log("워드 레인지 출력: ", this.wordRange);
+    /** 
+     html 속성 구문에서 = 등의 특수문자가 있으므로 범위가 파서되어 반환되지 않을 수 있다.
+    */
     const range = document.getWordRangeAtPosition(position, this.wordRange);
+    // console.log("레인지 출력 - 시작: ", range?.start, ", 끝: ", range?.end);
+    /** 
+     인수로 받은 타입을 통해 클래스냐 아이디냐를 검사하여 가져온다
+    */
     const map = await this.getCompletionMap(document, type);
-    const items = [];
+    // console.log("맵 내용물 출력: ", map);
+    const items: CompletionItem[] = [];
 
     for (const item of map.values()) {
       item.range = range;
       items.push(item);
     }
+
+    // console.log("반환 값 출력: ", items);
 
     /** 
      실험용 추가 코드
@@ -239,11 +272,11 @@ export class Provider implements CompletionItemProvider, DefinitionProvider {
         : reject()
     );
 
-    if (match) {
-      console.log("매치 검사 테스트");
-      console.log("매치 0: ", match[0]);
-      console.log("매치 1: ", match[1])
-    }
+    // if (match) {
+    // console.log("매치 검사 테스트");
+    // console.log("매치 0: ", match[0]);
+    // console.log("매치 1: ", match[1])
+    // }
 
     // console.log("토큰 출력 테스트: ", token);
     // console.log("디버그 테스트 출력: ", rt_promise);
