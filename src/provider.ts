@@ -52,7 +52,7 @@ export class Provider implements CompletionItemProvider, DefinitionProvider {
   }
 
   private get canComplete() {
-    return /(id|class|className|[.#])\s*[=:]?\s*(["'])(?:.(?!\2))*$/is;
+    return /(id|class|className|[.#]|test_attribute)\s*[=:]?\s*(["'])(?:.(?!\2))*$/is;
   }
 
   /* url을 받아서 내용물이 있으면 문자열로 반환한다. */
@@ -89,7 +89,13 @@ export class Provider implements CompletionItemProvider, DefinitionProvider {
     const name = uri.toString();
     let styles = cache.get(name);
     if (!styles) {
+      /** 
+       인자로 들어온 css 파일 경로를 통해 8비트 바이너리로 가져온다
+      */
       const content = await workspace.fs.readFile(uri);
+      /** 
+       가져온 바이너리를 다시 문자열로 치환한 뒤 원하는 이름만 남도록(클래스 또는 태그 아이디) 파싱하여 스타일에 대입한다.
+      */
       styles = parse(content.toString());
       cache.set(name, styles);
     }
@@ -125,9 +131,13 @@ export class Provider implements CompletionItemProvider, DefinitionProvider {
 
         // console.log("리턴 값 출력 테스트: ", value_cst);
 
+        /** 
+         본 코드를 통해 워크스페이스의 경로와 glob(asset\/**\/.css) 패턴을 통해 css 파일 경로를 가져온다
+        */
         const files = await workspace.findFiles(
           this.getRelativePattern(folder, glob)
         );
+        // console.log("파일 목록 출력: ", files);
         for (const file of files) {
           styles.set(file.toString(), await this.getLocal(file));
         }
@@ -150,6 +160,9 @@ export class Provider implements CompletionItemProvider, DefinitionProvider {
     return styles;
   }
 
+  /** 
+   이곳에서 스타일이냐 txt냐를 검사하여 분기코드를 작성한다.
+  */
   private async getCompletionMap(document: TextDocument, type: StyleType) {
     const map = new Map<string, CompletionItem>();
     /** 
@@ -197,6 +210,7 @@ export class Provider implements CompletionItemProvider, DefinitionProvider {
     */
     const range = document.getWordRangeAtPosition(position, this.wordRange);
     // console.log("레인지 출력 - 시작: ", range?.start, ", 끝: ", range?.end);
+
     /** 
      인수로 받은 타입을 통해 클래스냐 아이디냐를 검사하여 가져온다
     */
@@ -237,6 +251,7 @@ export class Provider implements CompletionItemProvider, DefinitionProvider {
     */
     const match = this.canComplete.exec(text);
 
+    console.log("매치 출력 테스트: ", match);
     // console.log("각 인수 검사");
     // console.log("document란: ", document.getText());
     // console.log("position이란: ", position);

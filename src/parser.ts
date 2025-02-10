@@ -18,6 +18,9 @@ export interface Style {
   selector: string;
 }
 
+/** 
+ css파일의 코드를 문자열 덩어리로 받아서 원하는 요소만 남도록(클래스와 태그 아이디의 이름) 정규식으로 파싱하여 스타일 배열에 담아 묶어서 반환한다.
+*/
 export function parse(text: string) {
   /** 
    css 파일에서 소스코드를 가지고 오면 (.)을 포함한 클래스 이름을 가져오는 정규식이다
