@@ -9,6 +9,9 @@ import { runTests } from "@vscode/test-electron";
 const extensionDevelopmentPath = path.resolve(__dirname, "../../");
 const extensionTestsPath = path.resolve(__dirname, "./suite");
 
-runTests({ extensionDevelopmentPath, extensionTestsPath }).catch(() =>
-  process.exit(1)
-);
+runTests({ extensionDevelopmentPath, extensionTestsPath })
+  .catch(
+    () => {
+      process.exit(1);
+    }
+  );

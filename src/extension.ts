@@ -23,7 +23,7 @@ import {
   clear,
   invalidate
 } from "./provider";
-import { title } from "process";
+import { get_txt_test } from "./test_cst";
 
 const enabledLanguages = getEnabledLanguages();
 const validations = languages.createDiagnosticCollection();
@@ -76,9 +76,9 @@ export function activate(
     commands.registerCommand("vscode-html-css.clear", () => clear())
   );
 
-  const set_foo_completion = new CompletionItem("SET FOO");
-  set_foo_completion.insertText = new SnippetString("SET FOO ${1|Foo, Bar, Bas};");
-  set_foo_completion.command = { command: "editor.action.triggerSuggest", title: "Re-trigger completions..." };
+  context.subscriptions.push(commands.registerCommand("c-vscode-html-css.test_command", () => {
+    get_txt_test();
+  }));
 
   return commands.executeCommand<void>(
     "vscode-html-css.validate",

@@ -33,7 +33,7 @@ import { getLineAndCharacterOfPosition } from "typescript";
 
 const start = new Position(0, 0);
 const cache = new Map<string, Style[]>();
-
+const cache_str = new Map<string, string[]>();
 
 
 export class Provider implements CompletionItemProvider, DefinitionProvider {
@@ -84,7 +84,7 @@ export class Provider implements CompletionItemProvider, DefinitionProvider {
     return styles;
   }
 
-  /* 로컬 uri를 가져와서 css 클래스 이름이 반환되도록 파싱한다. */
+  /** 로컬 uri를 가져와서 css 클래스 이름이 반환되도록 파싱한다. */
   private async getLocal(uri: Uri) {
     const name = uri.toString();
     let styles = cache.get(name);
@@ -115,10 +115,13 @@ export class Provider implements CompletionItemProvider, DefinitionProvider {
      워크스페이스 폴더의 uri를 가져와 워크스페이스 폴더를 반환한다.
     */
     const folder = workspace.getWorkspaceFolder(document.uri);
+
     /** 
      .vscode/settings.json의 css.styleSheet 요소를 가져온다.
     */
     const globs = getStyleSheets(document);
+
+    console.log("가져온 스타일 시트 출력: ", globs);
 
     for (const glob of globs) {
       if (this.isRemote.test(glob)) {
@@ -137,7 +140,12 @@ export class Provider implements CompletionItemProvider, DefinitionProvider {
         const files = await workspace.findFiles(
           this.getRelativePattern(folder, glob)
         );
-        // console.log("파일 목록 출력: ", files);
+        console.log("파일 목록 출력: ", files);
+        /** 
+         바로 위코드에서 얻어진 파일 Uri를 통해 css 및 txt 파일을 getLocal로 보내 파싱하게 된다.
+
+         즉 ,여기서 넘겨줄 때 파일 형식을 알려서 스타일 타입을 정할 필요가 있어 보인다. 
+        */
         for (const file of files) {
           styles.set(file.toString(), await this.getLocal(file));
         }
@@ -159,6 +167,52 @@ export class Provider implements CompletionItemProvider, DefinitionProvider {
 
     return styles;
   }
+
+  // private async get_str_arr(document: TextDocument) {
+  //   const styles = new Map<string, string[]>();
+  //   /** 
+  //    워크스페이스 폴더의 uri를 가져와 워크스페이스 폴더를 반환한다.
+  //   */
+  //   const folder = workspace.getWorkspaceFolder(document.uri);
+  //   /** 
+  //    .vscode/settings.json의 css.styleSheet 요소를 가져온다.
+  //   */
+  //   const globs = getStyleSheets(document);
+
+  //   for (const glob of globs) {
+  //     if (folder) {
+  //       // let value_cst = this.getRelativePattern(folder, glob);
+
+  //       // console.log("리턴 값 출력 테스트: ", value_cst);
+
+  //       /** 
+  //        본 코드를 통해 워크스페이스의 경로와 glob(asset\/**\/.css) 패턴을 통해 css 파일 경로를 가져온다
+  //       */
+  //       const files = await workspace.findFiles(
+  //         this.getRelativePattern(folder, glob)
+  //       );
+  //       // console.log("파일 목록 출력: ", files);
+  //       for (const file of files) {
+  //         styles.set(file.toString(), await this.getLocal(file));
+  //       }
+  //     }
+  //   }
+  //   /** 
+  //    이후 html 문서 내부에서도 파싱하여 스타일 클래스를 검색한 뒤 반환 값들을 키와 값으로 넣는다
+
+  //    클래스가 없으 경우 값은 0이 반환 된다.
+  //   */
+  //   styles.set(document.uri.toString(), parse(document.getText()));
+
+  //   /** 
+  //    호출 여부 테스트
+  //   */
+  //   // window.showInformationMessage("호출 테스트");
+  //   // console.log("객체 출력 실험: ", styles);
+  //   // console.log("반환 문서 출력 실험: ", document.getText());
+
+  //   return styles;
+  // }
 
   /** 
    이곳에서 스타일이냐 txt냐를 검사하여 분기코드를 작성한다.
@@ -251,7 +305,7 @@ export class Provider implements CompletionItemProvider, DefinitionProvider {
     */
     const match = this.canComplete.exec(text);
 
-    console.log("매치 출력 테스트: ", match);
+    // console.log("매치 출력 테스트: ", match);
     // console.log("각 인수 검사");
     // console.log("document란: ", document.getText());
     // console.log("position이란: ", position);

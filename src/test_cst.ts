@@ -3,6 +3,8 @@
 //   CLASS = ".",
 // }
 
+import { Uri, workspace } from "vscode"
+
 // export interface Style {
 //   index: number;
 //   line: number;
@@ -69,26 +71,48 @@
 //   });
 // }
 
-{
-  const test1 = async () => {
-    let value = await 1;
-    console.log("숫자 출력: ", value);
+// {
+//   const test1 = async () => {
+//     let value = await 1;
+//     console.log("숫자 출력: ", value);
 
-    value = await Promise.resolve(1);
-    console.log("프로미스 값 출력: ", value);
-  };
+//     value = await Promise.resolve(1);
+//     console.log("프로미스 값 출력: ", value);
+//   };
 
-  async function test2() {
-    let value = await "hello";
-    console.log("기본 값 출력: ", value);
+//   async function test2() {
+//     let value = await "hello";
+//     console.log("기본 값 출력: ", value);
 
-    value = await Promise.resolve("hello");
-    console.log("프로미스 값 출력: ", value);
+//     value = await Promise.resolve("hello");
+//     console.log("프로미스 값 출력: ", value);
+//   }
+
+//   // test1().then(() => { test2() });
+
+//   for (let dter = 0; dter < 5; dter += 1) {
+//     test1().then(() => test2());
+//   }
+// }
+
+export async function get_txt_test() {
+  let txt_str_path = "D:/Coding/master-vsc_extension/c-vscode-html-css/asset/testxt.txt";
+
+  // console.log("경로 호출: ", txt_str_path);
+
+  // let txt_uri = Uri.file(txt_str_path).toString();
+
+  let txt_str = await workspace.fs.readFile(Uri.file(txt_str_path)).then(get_str => get_str.toString());
+
+  let txtr_arr = txt_str.split("\n");
+
+
+  for (const dter of txtr_arr) {
+    console.log("각 요소 선회 하며 출력: ", dter);
   }
 
-  // test1().then(() => { test2() });
-
-  for (let dter = 0; dter < 5; dter += 1) {
-    test1().then(() => test2());
-  }
+  // console.log("출력 테스트: ", txt_str);
+  // return txt_str;
 }
+
+// { console.log("내용물 출력: ", get_txt_test()); }
