@@ -88,6 +88,11 @@ export class Provider implements CompletionItemProvider, DefinitionProvider {
   private async getLocal(uri: Uri) {
     const name = uri.toString();
     let styles = cache.get(name);
+    /** 
+     if문으로 가기 전에 Uri에서 확장 검사를 한 뒤 txt 스타일을 알려주는 구조를 만들어야 된다.
+
+     if안에 확장자를 검사하여 txt_parse를 하는 코드를 작성하도록 한다.
+    */
     if (!styles) {
       /** 
        인자로 들어온 css 파일 경로를 통해 8비트 바이너리로 가져온다
