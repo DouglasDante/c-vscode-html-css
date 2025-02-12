@@ -104,12 +104,17 @@ export async function get_txt_test() {
 
   let txt_str = await workspace.fs.readFile(Uri.file(txt_str_path)).then(get_str => get_str.toString());
 
-  let txtr_arr = txt_str.split("\n");
+  let txtr_match = txt_str.match(/[\D\d]*[\D\d]/g);
 
+  // let txtr_arr = txt_str.split("\n");
 
-  for (const dter of txtr_arr) {
-    console.log("각 요소 선회 하며 출력: ", dter);
+  if (txtr_match) {
+    console.log("내용물 출력: ", txtr_match.toString());
   }
+
+  // for (const dter of txtr_arr) {
+  //   console.log("각 요소 선회 하며 출력: ", dter);
+  // }
 
   // console.log("출력 테스트: ", txt_str);
   // return txt_str;

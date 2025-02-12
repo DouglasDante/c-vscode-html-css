@@ -126,7 +126,7 @@ export class Provider implements CompletionItemProvider, DefinitionProvider {
     */
     const globs = getStyleSheets(document);
 
-    console.log("가져온 스타일 시트 출력: ", globs);
+    // console.log("가져온 스타일 시트 출력: ", globs);
 
     for (const glob of globs) {
       if (this.isRemote.test(glob)) {
@@ -145,13 +145,14 @@ export class Provider implements CompletionItemProvider, DefinitionProvider {
         const files = await workspace.findFiles(
           this.getRelativePattern(folder, glob)
         );
-        console.log("파일 목록 출력: ", files);
+        // console.log("파일 목록 출력: ", files);
         /** 
          바로 위코드에서 얻어진 파일 Uri를 통해 css 및 txt 파일을 getLocal로 보내 파싱하게 된다.
 
          즉 ,여기서 넘겨줄 때 파일 형식을 알려서 스타일 타입을 정할 필요가 있어 보인다. 
         */
         for (const file of files) {
+          // console.log("정규식 검사 테스트: ", file.fsPath.match(/\.txt/g));
           styles.set(file.toString(), await this.getLocal(file));
         }
       }
@@ -347,9 +348,9 @@ export class Provider implements CompletionItemProvider, DefinitionProvider {
     );
 
     // if (match) {
-    // console.log("매치 검사 테스트");
+    //   console.log("매치 검사 테스트");
     // console.log("매치 0: ", match[0]);
-    // console.log("매치 1: ", match[1])
+    //   console.log("매치 1: ", match[1])
     // }
 
     // console.log("토큰 출력 테스트: ", token);
