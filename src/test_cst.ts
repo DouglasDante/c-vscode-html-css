@@ -4,6 +4,7 @@
 // }
 
 import { Uri, workspace } from "vscode"
+import { txt_parse } from "./parser";
 
 // export interface Style {
 //   index: number;
@@ -98,26 +99,55 @@ import { Uri, workspace } from "vscode"
 export async function get_txt_test() {
   let txt_str_path = "D:/Coding/master-vsc_extension/c-vscode-html-css/asset/testxt.txt";
 
-  // console.log("경로 호출: ", txt_str_path);
-
-  // let txt_uri = Uri.file(txt_str_path).toString();
+  let css_str_path = "D:/Coding/master-vsc_extension/c-vscode-html-css/asset/stylesheet.css";
 
   let txt_str = await workspace.fs.readFile(Uri.file(txt_str_path)).then(get_str => get_str.toString());
 
-  let txtr_match = txt_str.match(/[\D\d]*[\D\d]/g);
+  let css_str = await workspace.fs.readFile(Uri.file(css_str_path)).then(get_str => get_str.toString());
 
-  // let txtr_arr = txt_str.split("\n");
+  /** 
+   매치에서 0은 전체 매치
+   그 다음 숫자는 각 소괄호로 묶은 요소별 매치를 의미한다.
+  */
+  let css_regexp = /([.#])(-?[_a-zA-Z]+[\\!+_a-zA-Z0-9-]*)(?=[#.,()\s\[\]\^:*"'>=_a-zA-Z0-9-]*{[^}]*})/g;
 
-  if (txtr_match) {
-    console.log("내용물 출력: ", txtr_match.toString());
-  }
 
-  // for (const dter of txtr_arr) {
-  //   console.log("각 요소 선회 하며 출력: ", dter);
+  // let parse_css_str;
+
+  // while (parse_css_str = css_regexp.exec(css_str)) {
+  //   if (parse_css_str) {
+  //     console.log(`길이 출력: ${parse_css_str.length}`);
+  //     console.log(`내용물 출력 0: ${parse_css_str[0]}`);
+  //     console.log(`내용물 출력 1: ${parse_css_str[1]}`);
+  //     console.log(`내용물 출력 2: ${parse_css_str[2]}`);
+  //   }
   // }
 
-  // console.log("출력 테스트: ", txt_str);
-  // return txt_str;
-}
+  let txt_regexp = /[\D\d][^\n]+/g;
 
-// { console.log("내용물 출력: ", get_txt_test()); }
+  let value_tparse = txt_parse(txt_str);
+
+  for (const dter of value_tparse) {
+    console.log(`내용 반환: ${dter.selector}`);
+  }
+
+  // let parse_txt_str;
+
+  // while (parse_txt_str = txt_regexp.exec(txt_str)) {
+
+  //   if (parse_txt_str) {
+  //     console.log("길이 출력: ", parse_txt_str.length);
+  //     console.log("내용물 출력: ", parse_txt_str[0]);
+  //     console.log(`내용물 길이: ${parse_txt_str[0].length}`);
+  //     // console.log("내용물 출력 1: ", parse_txt_str[1]);
+  //     // console.log(`내용물 길이 1: ${parse_txt_str[1].length}`);
+  //     // for (const dter of parse_str) {
+  //     //   console.log("선회 출력: ", dter);
+  //     // }
+  //   } else {
+  //     console.log("내용물 확보 실패");
+  //   }
+  // }
+
+  // { console.log("내용물 출력: ", get_txt_test()); }
+}

@@ -47,9 +47,11 @@ export function parse(text: string) {
 
      match[2]의 경우 식별자만 할당된다.
     */
-    console.log("매치 0 할당 여부 확인: ", match[0]);
-    console.log("매치 1 할당 여부 확인: ", match[1]);
-    console.log("매치 2 할당 여부 확인: ", match[2]);
+    // console.log(`매치 길이 출력: ${match.length}`);
+    // console.log("매치 0 할당 여부 확인: ", match[0]);
+    // console.log("매치 1 할당 여부 확인: ", match[1]);
+    // console.log("매치 2 할당 여부 확인: ", match[2]);
+
     index = match.index;
     lci = lc.fromIndex(index);
 
@@ -75,11 +77,7 @@ export function parse(text: string) {
 }
 
 export function txt_parse(text: string) {
-  /** 
-   css 파일에서 소스코드를 가지고 오면 (.)을 포함한 클래스 이름을 가져오는 정규식이다
-  */
-  const selector =
-    /[\D\d]*/g;
+  const selector = /[\D\d][^\n]+/g;
   // const str_selector = / /g;
   const styles: Style[] = [];
   const lc = lineColumn(text, { origin: 0 });
@@ -91,6 +89,7 @@ export function txt_parse(text: string) {
   while ((match = selector.exec(text))) {
     index = match.index;
     lci = lc.fromIndex(index);
+
     if (lci) {
       line = lci.line;
       col = lci.col + 1;
@@ -100,7 +99,7 @@ export function txt_parse(text: string) {
       line,
       col,
       type: StyleType.TestAttribute,
-      selector: match[2].replaceAll("\\", ''),
+      selector: match.toString(),
     });
   }
   return styles;

@@ -52,7 +52,7 @@ export class Provider implements CompletionItemProvider, DefinitionProvider {
   }
 
   private get canComplete() {
-    return /(id|class|className|[.#]|test_attribute)\s*[=:]?\s*(["'])(?:.(?!\2))*$/is;
+    return /(id|class|className|test_attribute|[.#])\s*[=:]?\s*(["'])(?:.(?!\2))*$/is;
   }
 
   /* url을 받아서 내용물이 있으면 문자열로 반환한다. */
@@ -174,84 +174,49 @@ export class Provider implements CompletionItemProvider, DefinitionProvider {
     return styles;
   }
 
-  // private async get_str_arr(document: TextDocument) {
-  //   const styles = new Map<string, string[]>();
-  //   /** 
-  //    워크스페이스 폴더의 uri를 가져와 워크스페이스 폴더를 반환한다.
-  //   */
-  //   const folder = workspace.getWorkspaceFolder(document.uri);
-  //   /** 
-  //    .vscode/settings.json의 css.styleSheet 요소를 가져온다.
-  //   */
-  //   const globs = getStyleSheets(document);
-
-  //   for (const glob of globs) {
-  //     if (folder) {
-  //       // let value_cst = this.getRelativePattern(folder, glob);
-
-  //       // console.log("리턴 값 출력 테스트: ", value_cst);
-
-  //       /** 
-  //        본 코드를 통해 워크스페이스의 경로와 glob(asset\/**\/.css) 패턴을 통해 css 파일 경로를 가져온다
-  //       */
-  //       const files = await workspace.findFiles(
-  //         this.getRelativePattern(folder, glob)
-  //       );
-  //       // console.log("파일 목록 출력: ", files);
-  //       for (const file of files) {
-  //         styles.set(file.toString(), await this.getLocal(file));
-  //       }
-  //     }
-  //   }
-  //   /** 
-  //    이후 html 문서 내부에서도 파싱하여 스타일 클래스를 검색한 뒤 반환 값들을 키와 값으로 넣는다
-
-  //    클래스가 없으 경우 값은 0이 반환 된다.
-  //   */
-  //   styles.set(document.uri.toString(), parse(document.getText()));
-
-  //   /** 
-  //    호출 여부 테스트
-  //   */
-  //   // window.showInformationMessage("호출 테스트");
-  //   // console.log("객체 출력 실험: ", styles);
-  //   // console.log("반환 문서 출력 실험: ", document.getText());
-
-  //   return styles;
-  // }
-
   /** 
    이곳에서 스타일이냐 txt냐를 검사하여 분기코드를 작성한다.
   */
   private async getCompletionMap(document: TextDocument, type: StyleType) {
     const map = new Map<string, CompletionItem>();
-    /** 
-     스타일 묶음을 가져온다
-    */
-    const styles = await this.getStyles(document);
 
-    /** 
-     스타일시트 클래스 목록을 배열로 가져와서 검사한다.
-    */
-    for (const value of styles.values()) {
-      for (const style of value) {
+    if (type === StyleType.CLASS || type === StyleType.ID) {
+      /** 
+       스타일 묶음을 가져온다
+
+       여기서 맵으로 묶인 스타일 묶음이란 fsPath string에 각 클래스와 태그 이름이 묶여있는 덩어리를  의미한다.
+      */
+      const styles = await this.getStyles(document);
+
+      /** 
+       스타일시트 클래스 목록을 배열로 가져와서 검사한다.
+  
+       스타일 묶음에서 각 스타일 즉 파일을 검사한다.
+      */
+      for (const value of styles.values()) {
         /** 
-         클래스냐 ID냐를 검사하여
+         각 파일에서 들어있는 클래스와 태그 아이디 묶음을 가져온다.
         */
-        if (style.type === type) {
+        for (const style of value) {
           /** 
-           완성시킬 아이템으로 선택자를 키로 넣고, 클래스면 완성아이템 종류로 열거를, 태그이면 값을 넣는다.
+           클래스냐 ID냐를 검사하여
           */
-          const item = new CompletionItem(
-            style.selector,
-            style.type === StyleType.ID
-              ? CompletionItemKind.Value
-              : CompletionItemKind.Enum
-          );
-          map.set(style.selector, item);
+          if (style.type === type) {
+            /** 
+             완성시킬 아이템으로 선택자를 키로 넣고, 클래스면 완성아이템 종류로 열거를, 태그이면 값을 넣는다.
+            */
+            const item = new CompletionItem(
+              style.selector,
+              style.type === StyleType.ID
+                ? CompletionItemKind.Value
+                : CompletionItemKind.Enum
+            );
+            map.set(style.selector, item);
+          }
         }
       }
     }
+
     return map;
   }
 
@@ -328,7 +293,7 @@ export class Provider implements CompletionItemProvider, DefinitionProvider {
     */
     let rt_promise: ProviderResult<CompletionItem[] | CompletionList<CompletionItem>> = new Promise((resolve, reject) =>
       /** 
-       정규표현식이 존재하고, 토큰이 취소되지 않으면
+       정규표현식에 부합하는 구문이 현재 줄 범위에 존재하고, 토큰이 취소되지 않으면
       */
       match && !token.isCancellationRequested
         ?
@@ -336,6 +301,11 @@ export class Provider implements CompletionItemProvider, DefinitionProvider {
         // console.log(" 각 인수 검사");
         // console.log("document란: ", document);
         // console.log("position이란: ", position);
+        /** 
+         현재 코드에서는 아이디가 아닐 경우 무조건 클래스가 들어가는 구조라 컴플리션 반환값이 발생하는 형태다
+
+         클래스와 아이디, 애트리뷰트를 모두 검사하는 구조로 만들어야 원하는 결과가 도출될 수 있다.
+        */
         resolve(
           this.getCompletionItems(
             document,
@@ -347,11 +317,11 @@ export class Provider implements CompletionItemProvider, DefinitionProvider {
         : reject()
     );
 
-    // if (match) {
-    //   console.log("매치 검사 테스트");
-    // console.log("매치 0: ", match[0]);
-    //   console.log("매치 1: ", match[1])
-    // }
+    if (match) {
+      console.log("매치 검사 테스트");
+      console.log("매치 0: ", match[0]);
+      console.log("매치 1: ", match[1])
+    }
 
     // console.log("토큰 출력 테스트: ", token);
     // console.log("디버그 테스트 출력: ", rt_promise);
