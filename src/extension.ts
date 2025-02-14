@@ -3,6 +3,14 @@
  * Licensed under the MIT License
  */
 
+/** 
+ ## 제안자 구성에 필요한 기본 함수
+ - provideCompletionItems
+
+ ### 호출 순서
+  확장 기능에서 호출하는 자동완성 제안자가 호출하는 함수이다.
+  Provider.provideCompletionItems() *-> (Provider.canComplete()) && Provider.getCompletionItems() *-> Provider.getCompletionMap() *-> Provider.getStyles() *-> (Provider.getRelativePattern()) && getLocal() *-> parse() || txt_parse()
+*/
 import {
   commands,
   ExtensionContext,

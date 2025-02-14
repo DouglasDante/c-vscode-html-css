@@ -77,7 +77,7 @@ export function parse(text: string) {
 }
 
 export function txt_parse(text: string) {
-  const selector = /[\D\d][^\n]+/g;
+  const selector = /[^\r\n][\D\d][^\r\n]+/g;
   // const str_selector = / /g;
   const styles: Style[] = [];
   const lc = lineColumn(text, { origin: 0 });
